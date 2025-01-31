@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "751880563319",
+    "project_id": "shuttlelounge-f40fc",
+    "storage_bucket": "shuttlelounge-f40fc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:751880563319:android:a0b5bb09b67cbbba59b472",
+        "android_client_info": {
+          "package_name": "com.example.shuttleloungenew"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3PLuj1zyhLeZATk9ST8-hup79lWw3Qzw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shuttleloungenew/const/color.dart';
+import 'package:shuttleloungenew/expertmodule/expert_dashboard.dart';
 import 'package:shuttleloungenew/expertmodule/expertreviewstabs/expertreviewfulldetails.dart';
 import 'package:shuttleloungenew/models/custom_model.dart';
 import 'package:shuttleloungenew/sharedPreferences/sharedprefservices.dart';
@@ -343,18 +344,19 @@ class _ExpertresponseState extends State<Expertresponse> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-                builder: (context) => ExpertReviewFulldetails(
-                    cust_Name: this.widget.cust_Name,
-                    cust_ProfilePic: this.widget.cust_ProfilePic,
-                    cust_Question: this.widget.cust_Question,
-                    docId: this.widget.docId,
-                    ytUrl: this.widget.ytUrl,
-                    expert_Answer: answercontroller.text,
-                    expert_Name:
-                        "${SharedPrefServices.getfirstname()} ${SharedPrefServices.getlastname()}",
-                    expert_Profile:
-                        SharedPrefServices.getprofileimage().toString(),
-                    queries: queries)),
+              builder: (context) => ExpertDashboard()),
+                // builder: (context) => ExpertReviewFulldetails(
+                //     cust_Name: this.widget.cust_Name,
+                //     cust_ProfilePic: this.widget.cust_ProfilePic,
+                //     cust_Question: this.widget.cust_Question,
+                //     docId: this.widget.docId,
+                //     ytUrl: this.widget.ytUrl,
+                //     expert_Answer: answercontroller.text,
+                //     expert_Name:
+                //         "${SharedPrefServices.getfirstname()} ${SharedPrefServices.getlastname()}",
+                //     expert_Profile:
+                //         SharedPrefServices.getprofileimage().toString(),
+                //     queries: queries)),
           );
         },
       ).catchError((e) {

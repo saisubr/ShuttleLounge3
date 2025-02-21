@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shuttleloungenew/const/color.dart';
 import 'package:shuttleloungenew/customerModule/customerLogin/emailtab.dart';
 import 'package:shuttleloungenew/widgets/customtext.dart';
 
@@ -15,8 +17,15 @@ class Loginscreen extends StatefulWidget {
 class _LoginscreenState extends State<Loginscreen> {
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () => showExitPopup(context),
+    return PopScope(
+       canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        bool exitApp = await _showExitDialog(context);
+        if (exitApp) {
+          Navigator.of(context).pop(true);
+        }
+      },
       child: DefaultTabController(
           length: 1,
           child: Scaffold(
@@ -48,123 +57,43 @@ class _LoginscreenState extends State<Loginscreen> {
     );
   }
 
-  showExitPopup(BuildContext context) {
-    Future<bool> showExitPopup(context) async {
-      return await showDialog(
+   Future<bool> _showExitDialog(BuildContext context) async {
+    return (await showDialog(
           context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              content: Container(
-                height: 150,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Padding(
-                    //   padding: const EdgeInsets.all(8.0),
-                    //   child: Image.asset(
-                    //     'images/app_icon.png',
-                    //     scale: 1.5,
-                    //   ),
-                    // ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      "Are you sure you want to exit app ?",
-                      style: TextStyle(
-                        fontSize: 14.0,
-                        color: Colors.black,
-                        fontFamily: 'Poppins',
-                        // fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            print('no selected');
-                            Navigator.of(context).pop();
-                          },
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              side: BorderSide(color: Color(0xFFFF6700)),
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            child: Container(
-                              width: 100,
-                              decoration: BoxDecoration(
-                                color: Colors.transparent,
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(10.0),
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Container(
-                                  child: Center(
-                                    child: Text(
-                                      "Cancel",
-                                      style: TextStyle(
-                                        fontSize: 15.0,
-                                        color: Color(0xffFF6700),
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            print('yes selected');
-                            exit(0);
-                          },
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              side: BorderSide(color: Colors.transparent),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Container(
-                              width: 100,
-                              decoration: BoxDecoration(
-                                color: Color(0xFFFF6700),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(10.0),
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Container(
-                                  child: Center(
-                                    child: Text(
-                                      "Exit",
-                                      style: TextStyle(
-                                        fontSize: 15.0,
-                                        color: Colors.white,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
+          builder: (context) => AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            content: Text('Do you want to exit the app ?',
+                style: GoogleFonts.poppins(
+                    color: Colors.black,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500)),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text('Cancel',
+                    style: GoogleFonts.poppins(
+                        color: kblackColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600)),
               ),
-            );
-          });
-    }
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                  exit(0);
+                },
+                child: Text('Exit',
+                    style: GoogleFonts.poppins(
+                        color: Colors.grey.shade700,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600)),
+              ),
+            ],
+          ),
+        )) ??
+        false;
   }
+
+
+  
 }

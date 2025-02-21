@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:shuttleloungenew/const/color.dart';
+import 'package:shuttleloungenew/expertmodule/expert_dashboard.dart';
 import 'package:shuttleloungenew/sharedPreferences/sharedprefservices.dart';
 import 'package:shuttleloungenew/utils/utils.dart';
 import 'package:shuttleloungenew/widgets/custom_button.dart';
@@ -34,64 +35,103 @@ class _ExpertEditProfileState extends State<ExpertEditProfile> {
     lastnameController.text = SharedPrefServices.getlastname().toString();
     qualifiedController.text = SharedPrefServices.getqualified().toString();
   }
+void updateProfile() async {
+  setState(() {
+    _isLoading = true;
+  });
 
-  void updateProfile() async {
-    setState(() {
-      _isLoading = true;
-    });
+  final CollectionReference collection =
+      FirebaseFirestore.instance.collection('experts');
+  String docId = SharedPrefServices.getdocumentId().toString();
 
-    final CollectionReference collection =
-        FirebaseFirestore.instance.collection('experts');
-    String docId = SharedPrefServices.getdocumentId().toString();
+  try {
+    String existingProfilePic = SharedPrefServices.getprofileimage().toString();
+    String downloadURL = existingProfilePic;
 
-    try {
-      String downloadURL = SharedPrefServices.getprofileimage().toString();
-
-      if (image != null) {
-        downloadURL = await uploadImage();
+    if (image != null) {
+      if (existingProfilePic.isNotEmpty) {
+        try {
+          Reference storageReference =
+              FirebaseStorage.instance.refFromURL(existingProfilePic);
+          await storageReference.delete();
+          print("Existing profile image deleted successfully.");
+        } catch (e) {
+          print("Error deleting existing profile image: $e");
+        }
       }
 
-      await collection.doc(docId).update({
-        "firstName": firstnameController.text,
-        "lastName": lastnameController.text,
-        "profilePic": downloadURL,
-        "qualified": qualifiedController.text,
-      }).then(
-        (value) {
-          showSnackBar(context, "Data Updated Successfully");
-        },
-      ).catchError((e) {
-        print(e);
-      });
-    } catch (error) {
-      print("Data not updated: $error");
+      downloadURL = await uploadImage();
     }
-  }
 
-  void selectImage() async {
+    String updatedFirstName = firstnameController.text;
+    String updatedLastName = lastnameController.text;
+    String updatedQualification = qualifiedController.text;
+
+    await collection.doc(docId).update({
+      "firstName": updatedFirstName,
+      "lastName": updatedLastName,
+      "qualified": updatedQualification,
+      "profilePic": downloadURL,
+    }).then((value) async {
+      // **Update SharedPreferences with new data**
+      await SharedPrefServices.setfirstname(updatedFirstName);
+      await SharedPrefServices.setlastname(updatedLastName);
+      await SharedPrefServices.setqualified(updatedQualification);
+      await SharedPrefServices.setprofileimage(downloadURL);
+
+      showSnackBar(context, "Data Updated Successfully");
+
+      // **Navigate back and refresh**
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => ExpertDashboard()),
+        (route) => false,
+      );
+    }).catchError((e) {
+      print(e);
+    });
+  } catch (error) {
+    print("Data not updated: $error");
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
+  }
+}
+
+
+
+Future<String> uploadImage() async {
+  if (image == null) {
+    print('Image is null');
+    return '';
+  }
+ String userId = SharedPrefServices.getdocumentId().toString();
+ String name = SharedPrefServices.getfirstname().toString();
+ 
+  String folderName = 'edit_profile_images';
+  String fileName =  '$name-/$userId.jpg';
+    
+
+  Reference ref = FirebaseStorage.instance.ref().child(folderName).child(fileName);
+  UploadTask uploadTask = ref.putFile(image!);
+  TaskSnapshot snapshot = await uploadTask;
+  return await snapshot.ref.getDownloadURL();
+}
+
+void selectImage() async {
     image = await pickImage(context);
     setState(() {
       image = File(image!.path);
     });
   }
 
-  Future<String> uploadImage() async {
-    if (image == null) {
-      print('Image is null');
-      return '';
-    }
-    Reference ref = _firebaseStorage
-        .ref()
-        .child('profilePic')
-        .child(SharedPrefServices.getprofileimage().toString());
-    UploadTask uploadTask = ref.putFile(image!);
-    TaskSnapshot snapshot = await uploadTask;
-    String downloadURL = await snapshot.ref.getDownloadURL();
-    return downloadURL;
-  }
+  
 
   @override
   Widget build(BuildContext context) {
+    print(SharedPrefServices.getdocumentId().toString());
+     print(SharedPrefServices.getlastname().toString());
     return Scaffold(
       backgroundColor: kwhiteColor,
       appBar: AppBar(
@@ -379,3 +419,54 @@ class _ExpertEditProfileState extends State<ExpertEditProfile> {
     );
   }
 }
+
+
+// void updateProfile() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+
+  //   final CollectionReference collection =
+  //       FirebaseFirestore.instance.collection('experts');
+  //   String docId = SharedPrefServices.getdocumentId().toString();
+
+  //   try {
+  //     String downloadURL = SharedPrefServices.getprofileimage().toString();
+
+  //     if (image != null) {
+  //       downloadURL = await uploadImage();
+  //     }
+
+  //     await collection.doc(docId).update({
+  //       "firstName": firstnameController.text,
+  //       "lastName": lastnameController.text,
+  //       "profilePic": downloadURL,
+  //       "qualified": qualifiedController.text,
+  //     }).then(
+  //       (value) {
+  //         showSnackBar(context, "Data Updated Successfully");
+  //       },
+  //     ).catchError((e) {
+  //       print(e);
+  //     });
+  //   } catch (error) {
+  //     print("Data not updated: $error");
+  //   }
+  // }
+
+  
+
+  // Future<String> uploadImage() async {
+  //   if (image == null) {
+  //     print('Image is null');
+  //     return '';
+  //   }
+  //   Reference ref = _firebaseStorage
+  //       .ref()
+  //       .child('profilePic')
+  //       .child(SharedPrefServices.getprofileimage().toString());
+  //   UploadTask uploadTask = ref.putFile(image!);
+  //   TaskSnapshot snapshot = await uploadTask;
+  //   String downloadURL = await snapshot.ref.getDownloadURL();
+  //   return downloadURL;
+  // }

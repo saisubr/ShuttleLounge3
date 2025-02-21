@@ -25,7 +25,7 @@ class _ExpertLoginState extends State<ExpertLogin> {
 
   bool _isLoading = false;
   final emailController =
-      TextEditingController(text: kDebugMode ? "test.exp@gmail.com" : "");
+      TextEditingController(text: kDebugMode ? "testexp@gmail.com" : "");
 
   final TextEditingController phoneController =
       TextEditingController(text: kDebugMode ? "8555005960" : "");

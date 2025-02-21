@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:shuttleloungenew/const/color.dart';
+import 'package:shuttleloungenew/customerModule/bottomNavigationBarScreens/dashboard.dart';
 import 'package:shuttleloungenew/sharedPreferences/sharedprefservices.dart';
 import 'package:shuttleloungenew/utils/utils.dart';
 import 'package:shuttleloungenew/widgets/custom_button.dart';
@@ -34,38 +35,87 @@ class _CustomerEditProfileState extends State<CustomerEditProfile> {
     lastnameController.dispose();
     super.dispose();
   }
+void updateProfile() async {
+  setState(() {
+    _isLoading = true;
+  });
 
-  void updateProfile() async {
-    setState(() {
-      _isLoading = true;
-    });
+  final CollectionReference collection =
+      FirebaseFirestore.instance.collection('users');
+  String docId = SharedPrefServices.getdocumentId().toString();
 
-    final CollectionReference collection =
-        FirebaseFirestore.instance.collection('users');
-    String docId = SharedPrefServices.getdocumentId().toString();
+  try {
+    String existingProfilePic = SharedPrefServices.getprofileimage().toString();
+    String downloadURL = existingProfilePic;
 
-    try {
-      String downloadURL = SharedPrefServices.getprofileimage().toString();
-
-      if (image != null) {
-        downloadURL = await uploadImage();
+    if (image != null) {
+      if (existingProfilePic.isNotEmpty) {
+        try {
+          Reference storageReference =
+              FirebaseStorage.instance.refFromURL(existingProfilePic);
+          await storageReference.delete();
+        } catch (e) {
+          print("Error deleting existing profile image: $e");
+        }
       }
-
-      await collection.doc(docId).update({
-        "firstName": firstnameController.text,
-        "lastName": lastnameController.text,
-        "profilePic": downloadURL,
-      }).then(
-        (value) {
-          showSnackBar(context, "Data Updated Successfully");
-        },
-      ).catchError((e) {
-        print(e);
-      });
-    } catch (error) {
-      print("Data not updated: $error");
+      downloadURL = await uploadImage();
     }
+
+    String updatedFirstName = firstnameController.text;
+    String updatedLastName = lastnameController.text;
+
+    await collection.doc(docId).update({
+      "firstName": updatedFirstName,
+      "lastName": updatedLastName,
+      "profilePic": downloadURL,
+    }).then((value) async {
+    
+      await SharedPrefServices.setfirstname(updatedFirstName);
+      await SharedPrefServices.setlastname(updatedLastName);
+      await SharedPrefServices.setprofileimage(downloadURL);
+
+      showSnackBar(context, "Data Updated Successfully");
+
+      
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => Dashboard()),
+        (route) => false,
+      );
+    }).catchError((e) {
+      print(e);
+    });
+  } catch (error) {
+    print("Data not updated: $error");
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
   }
+}
+
+
+
+Future<String> uploadImage() async {
+  if (image == null) {
+    print('Image is null');
+    return '';
+  }
+ String userId = SharedPrefServices.getdocumentId().toString();
+ String name = SharedPrefServices.getfirstname().toString();
+ 
+  String folderName = 'edit_profile_images';
+  String fileName =  '$name-/$userId.jpg';
+    
+
+  Reference ref = FirebaseStorage.instance.ref().child(folderName).child(fileName);
+  UploadTask uploadTask = ref.putFile(image!);
+  TaskSnapshot snapshot = await uploadTask;
+  return await snapshot.ref.getDownloadURL();
+}
+
+  
+
 
   void selectImage() async {
     image = await pickImage(context);
@@ -74,23 +124,13 @@ class _CustomerEditProfileState extends State<CustomerEditProfile> {
     });
   }
 
-  Future<String> uploadImage() async {
-    if (image == null) {
-      print('Image is null');
-      return '';
-    }
-    Reference ref = _firebaseStorage
-        .ref()
-        .child('profilePic')
-        .child(SharedPrefServices.getprofileimage().toString());
-    UploadTask uploadTask = ref.putFile(image!);
-    TaskSnapshot snapshot = await uploadTask;
-    String downloadURL = await snapshot.ref.getDownloadURL();
-    return downloadURL;
-  }
+  
 
   @override
   Widget build(BuildContext context) {
+    print('Document ID');
+    print(SharedPrefServices.getdocumentId().toString());
+    
     return Scaffold(
       backgroundColor: kwhiteColor,
       appBar: AppBar(
@@ -273,46 +313,7 @@ class _CustomerEditProfileState extends State<CustomerEditProfile> {
                     ),
                   ),
                 ),
-                // const SizedBox(
-                //   height: 15,
-                // ),
-                // const CustomText(
-                //   text: "Mobile Number",
-                //   fontSize: 14,
-                //   fontWeight: FontWeight.w400,
-                //   textcolor: kblackColor,
-                // ),
-                // const SizedBox(
-                //   height: 5,
-                // ),
-                // Container(
-                //   height: 40,
-                //   width: double.infinity,
-                //   decoration: BoxDecoration(
-                //       border: Border.all(color: kgreyColor),
-                //       borderRadius: BorderRadius.circular(10)),
-                //   child: Padding(
-                //     padding: const EdgeInsets.only(left: 15, top: 5),
-                //     child: Row(
-                //       children: [
-                //         const Icon(
-                //           Icons.phone,
-                //           color: kgreyColor,
-                //           size: 22,
-                //         ),
-                //         const SizedBox(
-                //           width: 10,
-                //         ),
-                //         CustomText(
-                //             text:
-                //                 SharedPrefServices.getphonenumber().toString(),
-                //             fontSize: 14,
-                //             fontWeight: FontWeight.w400,
-                //             textcolor: kblackColor)
-                //       ],
-                //     ),
-                //   ),
-                // ),
+         
                 const SizedBox(
                   height: 25,
                 ),
@@ -337,3 +338,52 @@ class _CustomerEditProfileState extends State<CustomerEditProfile> {
     );
   }
 }
+
+
+
+
+  // void updateProfile() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+
+  //   final CollectionReference collection =
+  //       FirebaseFirestore.instance.collection('users');
+  //   String docId = SharedPrefServices.getdocumentId().toString();
+
+  //   try {
+  //     String downloadURL = SharedPrefServices.getprofileimage().toString();
+
+  //     if (image != null) {
+  //       downloadURL = await uploadImage();
+  //     }
+
+  //     await collection.doc(docId).update({
+  //       "firstName": firstnameController.text,
+  //       "lastName": lastnameController.text,
+  //       "profilePic": downloadURL,
+  //     }).then(
+  //       (value) {
+  //         showSnackBar(context, "Data Updated Successfully");
+  //       },
+  //     ).catchError((e) {
+  //       print(e);
+  //     });
+  //   } catch (error) {
+  //     print("Data not updated: $error");
+  //   }
+  // }
+  // Future<String> uploadImage() async {
+  //   if (image == null) {
+  //     print('Image is null');
+  //     return '';
+  //   }
+  //   Reference ref = _firebaseStorage
+  //       .ref()
+  //       .child('profilePic')
+  //       .child(SharedPrefServices.getprofileimage().toString());
+  //   UploadTask uploadTask = ref.putFile(image!);
+  //   TaskSnapshot snapshot = await uploadTask;
+  //   String downloadURL = await snapshot.ref.getDownloadURL();
+  //   return downloadURL;
+  // }

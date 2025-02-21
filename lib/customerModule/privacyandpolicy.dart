@@ -42,7 +42,7 @@ class PrivacyandPolicy extends StatelessWidget {
                 height: 15,
               ),
               const CustomText(
-                  text: "Our Privacy Policy was last Updated on [07-09-2023]",
+                  text: "Our Privacy Policy was last Updated on [20-02-2025]",
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                   textcolor: kblackColor),

@@ -1,10 +1,122 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:flutter/material.dart';
+// import 'package:intl/intl.dart';
+// import 'package:shuttleloungenew/sharedPreferences/sharedprefservices.dart';
+// import 'package:shuttleloungenew/widgets/verticalbars.dart';
+
+// // import 'package:vertical_percent_indicator/vertical_percent_indicator.dart';
+
+// class BarChartSample extends StatefulWidget {
+//   @override
+//   State<BarChartSample> createState() => _BarChartSampleState();
+// }
+
+// class _BarChartSampleState extends State<BarChartSample> {
+//   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
+
+//   List<String> dayNames = [];
+//   List<String> datesList = [];
+//   List<int> countList = [];
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     generateDates();
+//     dayNames = getDayNames();
+//   }
+
+//   List<String> getDayNames() {
+//     DateTime now = DateTime.now();
+//     List<String> days = ['M', 'T', 'W', 'TH', 'F', 'S', 'SU'];
+//     int currentDayIndex = now.weekday;
+
+//     List<String> dayNames = [];
+
+//     for (int i = currentDayIndex; i < days.length; i++) {
+//       dayNames.add(days[i]);
+//     }
+
+//     for (int i = 0; i < currentDayIndex; i++) {
+//       dayNames.add(days[i]);
+//     }
+//     return dayNames;
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Row(
+//       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//       children: List.generate(
+//         7,
+//         (index) => Verticalbars(
+//           height: 150,
+//           width: 5,
+//           percent: countList.isEmpty ? 0.0 : countList[index] / 10,
+//           header: '${countList.isEmpty ? 0 : countList[index]}',
+//           footer: dayNames[index],
+//         ),
+//       ),
+//     );
+//   }
+
+//   void generateDates() {
+    
+//     DateTime currentDate = DateTime.now();
+//     for (int i = 0; i < 7; i++) {
+//       String formattedDate = DateFormat('dd-MM-yyyy').format(currentDate);
+//       currentDate = currentDate.subtract(const Duration(days: 1));
+//       datesList.insert(0, formattedDate);
+//     }
+//     print('Now Priniting Dates Bar Graph');
+//     print(datesList);
+//     getReviewCounts();
+//   }
+//   Future<List<Map<String, dynamic>>> getReviewCounts() async {
+//      try {
+//       QuerySnapshot querySnapshot = await _firebaseFirestore
+//           .collection('reviewCounts')
+//           .where('expertId', isEqualTo: SharedPrefServices.getexpertId())
+//           .get();
+
+//      List<Map<String, dynamic>> reviewCount = querySnapshot.docs.map((doc) {
+//         return {
+//           'date': doc['date'],
+//           'expertId': doc['expertId'],
+//           'reviewDocId': doc['reviewDocId'],
+//         };
+//       }).toList();
+     
+//       countList = List<int>.filled(datesList.length, 0);
+
+//       for (var count in reviewCount) {
+//         String? date = count['date'];
+//         int index = datesList.indexOf(date!);
+//         if (index != -1) {
+//           countList[index]++;
+//         }
+//       }
+//       print('Printing Counts:');
+//       print(countList);
+
+//       setState(() {});
+
+//       print('Printing Data:');
+//       print(reviewCount);
+
+
+//       return reviewCount;
+//     } catch (error) {
+//       print("Error fetching reviewsCount: $error");
+//       return [];
+//     }
+//   }
+// }
+
+  import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shuttleloungenew/sharedPreferences/sharedprefservices.dart';
 import 'package:shuttleloungenew/widgets/verticalbars.dart';
-
-// import 'package:vertical_percent_indicator/vertical_percent_indicator.dart';
 
 class BarChartSample extends StatefulWidget {
   @override
@@ -18,11 +130,14 @@ class _BarChartSampleState extends State<BarChartSample> {
   List<String> datesList = [];
   List<int> countList = [];
 
+  Future<void> _fetchDataFuture = Future.value();
+
   @override
   void initState() {
     super.initState();
     generateDates();
     dayNames = getDayNames();
+    _fetchDataFuture = getReviewCounts();
   }
 
   List<String> getDayNames() {
@@ -31,11 +146,9 @@ class _BarChartSampleState extends State<BarChartSample> {
     int currentDayIndex = now.weekday;
 
     List<String> dayNames = [];
-
     for (int i = currentDayIndex; i < days.length; i++) {
       dayNames.add(days[i]);
     }
-
     for (int i = 0; i < currentDayIndex; i++) {
       dayNames.add(days[i]);
     }
@@ -44,34 +157,43 @@ class _BarChartSampleState extends State<BarChartSample> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: List.generate(
-        7,
-        (index) => Verticalbars(
-          height: 150,
-          width: 5,
-          percent: countList.isEmpty ? 0.0 : countList[index] / 10,
-          header: '${countList.isEmpty ? 0 : countList[index]}',
-          footer: dayNames[index],
-        ),
-      ),
+    return FutureBuilder(
+      future: _fetchDataFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Error loading data"));
+        }
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(
+            7,
+            (index) => Verticalbars(
+              height: 150,
+              width: 5,
+              percent: countList.isEmpty ? 0.0 : countList[index] / 10,
+              header: '${countList.isEmpty ? 0 : countList[index]}',
+              footer: dayNames[index],
+            ),
+          ),
+        );
+      },
     );
   }
 
   void generateDates() {
-    
     DateTime currentDate = DateTime.now();
     for (int i = 0; i < 7; i++) {
       String formattedDate = DateFormat('dd-MM-yyyy').format(currentDate);
       currentDate = currentDate.subtract(const Duration(days: 1));
       datesList.insert(0, formattedDate);
     }
-    print('Now Priniting Dates Bar Graph');
-    print(datesList);
-    getReviewCounts();
+    print('Now Printing Dates for Bar Graph: $datesList');
   }
-Future<List<Map<String, dynamic>>> getReviewCounts() async {
+
+  Future<void> getReviewCounts() async {
     try {
       QuerySnapshot querySnapshot = await _firebaseFirestore
           .collection('reviewCounts')
@@ -95,24 +217,15 @@ Future<List<Map<String, dynamic>>> getReviewCounts() async {
           countList[index]++;
         }
       }
-      print('Printing Counts:');
-      print(countList);
 
+      print('Printing Counts: $countList');
       setState(() {});
-
-      print('Printing Data:');
-      print(reviewCount);
-
-
-      return reviewCount;
     } catch (error) {
       print("Error fetching reviewsCount: $error");
-      return [];
     }
   }
 }
 
-  
 
 
 

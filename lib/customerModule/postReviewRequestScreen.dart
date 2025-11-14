@@ -9,6 +9,7 @@ import 'package:shuttleloungenew/widgets/custom_button.dart';
 import 'package:shuttleloungenew/widgets/customtext.dart';
 import 'package:shuttleloungenew/widgets/progressbar.dart';
 import 'package:video_url_validator/video_url_validator.dart';
+import 'previewytVideo.dart'; // Added import for your video player
 
 class PostReviewRequestScreen extends StatefulWidget {
   const PostReviewRequestScreen({super.key});
@@ -27,18 +28,15 @@ class _PostReviewRequestScreenState extends State<PostReviewRequestScreen> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  bool onSubmit = false;
-
   bool showProgressIndicator = false;
 
   final VideoURLValidator _validator = VideoURLValidator();
 
   @override
   void dispose() {
-    super.dispose();
     urlcontroller.dispose();
-
     questioncontroller.dispose();
+    super.dispose();
   }
 
   @override
@@ -70,24 +68,6 @@ class _PostReviewRequestScreenState extends State<PostReviewRequestScreen> {
             fontWeight: FontWeight.w600,
             textcolor: kblackColor),
         centerTitle: true,
-        // actions: [
-        //   GestureDetector(
-        //     onTap: () {
-        //       Navigator.push(
-        //           context,
-        //           MaterialPageRoute(
-        //               builder: (context) => const Notifications()));
-        //     },
-        //     child: Padding(
-        //       padding: const EdgeInsets.all(10.0),
-        //       child: Image.asset(
-        //         'images/notification.png',
-        //         height: 25,
-        //         width: 25,
-        //       ),
-        //     ),
-        //   )
-        // ],
       ),
       drawer: const CustomerSideMenu(),
       key: scaffoldKey,
@@ -101,9 +81,7 @@ class _PostReviewRequestScreenState extends State<PostReviewRequestScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(
-                      height: 15,
-                    ),
+                    const SizedBox(height: 15),
                     Container(
                         margin: const EdgeInsets.only(right: 5, left: 5),
                         child: const CustomText(
@@ -111,9 +89,7 @@ class _PostReviewRequestScreenState extends State<PostReviewRequestScreen> {
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
                             textcolor: kblackColor)),
-                    const SizedBox(
-                      height: 15,
-                    ),
+                    const SizedBox(height: 15),
                     Container(
                         margin: const EdgeInsets.only(right: 5, left: 5),
                         child: const CustomText(
@@ -122,17 +98,13 @@ class _PostReviewRequestScreenState extends State<PostReviewRequestScreen> {
                             fontSize: 16,
                             fontWeight: FontWeight.w400,
                             textcolor: kblackColor)),
-                    const SizedBox(
-                      height: 25,
-                    ),
+                    const SizedBox(height: 25),
                     const CustomText(
                         text: "Upload Youtube URL",
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         textcolor: Colors.red),
-                    const SizedBox(
-                      height: 10,
-                    ),
+                    const SizedBox(height: 10),
                     Container(
                       height: 45,
                       width: double.infinity,
@@ -146,22 +118,43 @@ class _PostReviewRequestScreenState extends State<PostReviewRequestScreen> {
                           decoration:
                               const InputDecoration(border: InputBorder.none),
                           cursorColor: Colors.red,
-                          onChanged: (value) {},
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 15,
+                    const SizedBox(height: 10),
+                    // Preview Video Button
+                    TextButton(
+                      onPressed: () {
+                        String youtubeUrl = urlcontroller.text.trim();
+                        if (youtubeUrl.isNotEmpty) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  PreviewytVideo(ytUrl: youtubeUrl),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please enter a YouTube URL'),
+                              duration: Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                      },
+                      child: const Text(
+                        'Preview Video',
+                        style: TextStyle(color: Colors.blue, fontSize: 16),
+                      ),
                     ),
-
-                    CustomText(
+                    const SizedBox(height: 15),
+                    const CustomText(
                         text: "Ask Expert *",
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         textcolor: Colors.red),
-                    const SizedBox(
-                      height: 10,
-                    ),
+                    const SizedBox(height: 10),
                     Container(
                       width: double.infinity,
                       height: 165,
@@ -176,16 +169,13 @@ class _PostReviewRequestScreenState extends State<PostReviewRequestScreen> {
                         decoration: InputDecoration(
                             alignLabelWithHint: true,
                             focusedBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(
-                                  color: Colors.grey,
-                                ),
+                                borderSide:
+                                    const BorderSide(color: Colors.grey),
                                 borderRadius: BorderRadius.circular(10)),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0),
                               borderSide: const BorderSide(
-                                color: Colors.grey,
-                                width: 1.0,
-                              ),
+                                  color: Colors.grey, width: 1.0),
                             ),
                             hintText: 'Ask Expert ....',
                             hintStyle: const TextStyle(
@@ -194,10 +184,7 @@ class _PostReviewRequestScreenState extends State<PostReviewRequestScreen> {
                             )),
                       ),
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-
+                    const SizedBox(height: 10),
                     CustomButton(
                       text: "SUBMIT",
                       onPressed: () {
@@ -211,8 +198,8 @@ class _PostReviewRequestScreenState extends State<PostReviewRequestScreen> {
                             if (!isValidYoutubeUrl) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content:
-                                      Text('Please enter a valid YouTube URL'),
+                                  content: Text(
+                                      'Please enter a valid YouTube URL'),
                                   duration: Duration(seconds: 4),
                                 ),
                               );
@@ -237,28 +224,14 @@ class _PostReviewRequestScreenState extends State<PostReviewRequestScreen> {
                       color: kgreyColor,
                       textColor: kwhiteColor,
                     ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-
-                    //    if(onSubmit = true && questioncontroller.text.toString().isNotEmpty){
-                    //              data();
-                    //           }
-                    //          else{
-                    //     ScaffoldMessenger.of(context).showSnackBar(
-                    //  const SnackBar(
-                    //  content: Text('Please ask your question'),
-                    // duration: Duration(seconds: 4),
-                    //       ),
-
-                    //      ); }
+                    const SizedBox(height: 30),
                   ],
                 ),
               ),
             ),
           ),
           if (showProgressIndicator)
-            Center(
+             Center(
               child: ProgressBarHUD(),
             ),
         ]),
@@ -298,74 +271,9 @@ class _PostReviewRequestScreenState extends State<PostReviewRequestScreen> {
       questioncontroller.clear();
       urlcontroller.clear();
     });
-    // Navigator.of(context).push(
-    //   MaterialPageRoute(
-    //     builder: (BuildContext context) {
-    //       return const CustomerHomescreen();
-    //     },
-    //   ),
-    // );
 
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => const Dashboard()));
   }
 }
-
-
-
-
-  // bool isYouTubeURL(String url) {
-  //   RegExp regExp = RegExp(
-  //     r"(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([\w-]{11})(?:\W|$)",
-  //     caseSensitive: false,
-  //     multiLine: false,
-  //   );
-  //   return regExp.hasMatch(url);
-  // }
-  
-  
-
-
-
-
-
-
-  // Future<void> data() async {
-  //   final CollectionReference collection =
-  //       FirebaseFirestore.instance.collection('requestedReviews');
-
-  //   final CustomModel customModel = CustomModel(
-  //     yTUrl: urlcontroller.text.isEmpty ? "" : urlcontroller.text,
-  //     cust_Question: questioncontroller.text,
-  //     cust_Id: SharedPrefServices.getcustomerId().toString(),
-  //     expertName: "",
-  //     expertProfilepic: "",
-  //     is_Answered: "FALSE",
-  //     expert_queue_Id: "",
-  //     expertAnswer: "",
-  //     queries: [
-  //       {
-  //         "QuerryBy": "CUST",
-  //         "Querry": questioncontroller.text.toString(),
-  //       }
-  //     ],
-  //   );
-  //   Map<String, dynamic> data = customModel.toMap();
-  //   data['timestamp'] = FieldValue.serverTimestamp();
-  //   await collection.add(data);
-  //   Navigator.pushReplacement(
-  //       context, MaterialPageRoute(builder: (context) => Dashboard()));
-  // }
-
-  // Future<void> addData() async {
-  // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> Home()));
-  // var documentId = DateTime.now().millisecondsSinceEpoch.toString();
-  // var documentReference = users.doc(documentId);
-  // return documentReference
-  //     .set({
-  //      'URL' : urlcontroller.text,
-  //      'Ask Expert' : questioncontroller.text,
-  //     })
-  //     .then((value) => print('Data added successfully'))
-  //     .catchError((error) => print('Failed to add data: $error'));}
 

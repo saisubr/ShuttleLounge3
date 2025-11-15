@@ -64,6 +64,7 @@ class _RequestedReviewsState extends State<RequestedReviews> {
                         } else {
                           List<Map<String, dynamic>> videoDetails =
                               snapshot.data!;
+                          print("Printing video details:");
                           print(videoDetails);
                           inspect(videoDetails);
                           return ListView.builder(
@@ -73,6 +74,7 @@ class _RequestedReviewsState extends State<RequestedReviews> {
                                       videoDetails[index]['yTUrl']
                                           .toString()) ??
                                   "";
+                              print("Video ID: $videoId");
 
                               Timestamp timeStamp =
                                   videoDetails[index]['timeStamp'];
@@ -252,7 +254,8 @@ class _RequestedReviewsState extends State<RequestedReviews> {
                                                             controller:
                                                                 YoutubePlayerController(
                                                               initialVideoId:
-                                                                  videoId,
+                                                                  videoId
+                                                                      .toString(),
                                                               flags:
                                                                   const YoutubePlayerFlags(
                                                                 autoPlay: false,

@@ -9,7 +9,7 @@ import 'package:shuttleloungenew/sharedPreferences/sharedprefservices.dart';
 import 'package:shuttleloungenew/widgets/custom_button.dart';
 import 'package:shuttleloungenew/widgets/customtext.dart';
 import 'package:shuttleloungenew/widgets/progressbar.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 
 class ExpertLogin extends StatefulWidget {
   const ExpertLogin({super.key});
@@ -37,10 +37,47 @@ class _ExpertLoginState extends State<ExpertLogin> {
     return regex.hasMatch(password);
   }
 
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   bool hidden = true;
+  bool _acceptedTerms = false;
 
+  void _showTerms() {
+    _launchUrl('https://www.shuttlelounge.com/terms-and-condition.html');
+  }
+
+  void _showPrivacy() {
+    _launchUrl('https://www.shuttlelounge.com/privacy-policy.html');
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    try {
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        // fallback to dialog if cannot launch
+        _showUnableToOpen();
+      }
+    } catch (e) {
+      _showUnableToOpen();
+    }
+  }
+
+  void _showUnableToOpen() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Unable to open'),
+            content:
+                const Text('Could not open the link. Please try again later.'),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Close'))
+            ],
+          );
+        });
+  }
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Country selectedCountry = Country(
       phoneCode: "91",
       countryCode: "IN",
@@ -192,9 +229,63 @@ class _ExpertLoginState extends State<ExpertLogin> {
                             const SizedBox(
                               height: 30,
                             ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Checkbox(
+                                    value: _acceptedTerms,
+                                    onChanged: (val) {
+                                      setState(() {
+                                        _acceptedTerms = val ?? false;
+                                      });
+                                    },
+                                  ),
+                                  Expanded(
+                                    child: Wrap(
+                                      children: [
+                                        const Text('I agree to the '),
+                                        GestureDetector(
+                                          onTap: () => _showTerms(),
+                                          child: const Text(
+                                            'Terms & Conditions',
+                                            style: TextStyle(
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                color: kgreyColor,
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                        ),
+                                        const Text(' and '),
+                                        GestureDetector(
+                                          onTap: () => _showPrivacy(),
+                                          child: const Text(
+                                            'Privacy Policy',
+                                            style: TextStyle(
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                color: kgreyColor,
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             CustomButton(
                               text: "Login",
                               onPressed: () {
+                                if (!_acceptedTerms) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            'Please accept Terms & Conditions and Privacy Policy')),
+                                  );
+                                  return;
+                                }
                                 _login();
                                 checkExpertwithFirebase();
                               },

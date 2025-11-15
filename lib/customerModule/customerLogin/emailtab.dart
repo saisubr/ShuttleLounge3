@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:shuttleloungenew/const/color.dart';
 import 'package:shuttleloungenew/customerModule/bottomNavigationBarScreens/dashboard.dart';
 import 'package:shuttleloungenew/expertmodule/expert_login.dart';
@@ -19,8 +20,8 @@ class Emailtab extends StatefulWidget {
 }
 
 class _EmailtabState extends State<Emailtab> {
-  final TextEditingController emailController =
-      TextEditingController(text: kDebugMode ? "sai.n@gmail.com" : "");
+  final TextEditingController emailController = TextEditingController(
+      text: kDebugMode ? "chollettiudayteja@gmail.com" : "");
   final TextEditingController passwordController =
       TextEditingController(text: kDebugMode ? "Test@123" : "");
 
@@ -29,9 +30,48 @@ class _EmailtabState extends State<Emailtab> {
     return regex.hasMatch(password);
   }
 
+  void _showTerms() {
+    _launchUrl('https://www.shuttlelounge.com/terms-and-condition.html');
+  }
+
+  void _showPrivacy() {
+    _launchUrl('https://www.shuttlelounge.com/privacy-policy.html');
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    try {
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        // fallback to dialog if cannot launch
+        _showUnableToOpen();
+      }
+    } catch (e) {
+      _showUnableToOpen();
+    }
+  }
+
+  void _showUnableToOpen() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Unable to open'),
+            content:
+                const Text('Could not open the link. Please try again later.'),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Close'))
+            ],
+          );
+        });
+  }
+
   bool password = true;
 
   bool _isLoading = false;
+
+  bool _acceptedTerms = false;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -83,7 +123,6 @@ class _EmailtabState extends State<Emailtab> {
                       },
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
-                        
                         hintText: "Email",
                         prefixIcon: const Padding(
                           padding: EdgeInsets.fromLTRB(12, 12, 10, 15),
@@ -93,7 +132,7 @@ class _EmailtabState extends State<Emailtab> {
                             size: 22,
                           ),
                         ),
-                      
+
                         //  contentPadding: const EdgeInsets.fromLTRB(15, 25, 15, 10),
                         contentPadding:
                             const EdgeInsets.fromLTRB(12, 12, 10, 15),
@@ -112,7 +151,6 @@ class _EmailtabState extends State<Emailtab> {
                             borderSide: const BorderSide(color: kgreyColor)),
                       ),
                     ),
-
                   ),
                   const CustomText(
                       text: "Password",
@@ -136,7 +174,7 @@ class _EmailtabState extends State<Emailtab> {
                         }
                         return null;
                       },
-                       textInputAction: TextInputAction.done,
+                      textInputAction: TextInputAction.done,
                       decoration: InputDecoration(
                         suffixIcon: IconButton(
                             onPressed: () {
@@ -181,11 +219,64 @@ class _EmailtabState extends State<Emailtab> {
                     ),
                   ),
                   const SizedBox(height: 40),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Checkbox(
+                          value: _acceptedTerms,
+                          onChanged: (val) {
+                            setState(() {
+                              _acceptedTerms = val ?? false;
+                            });
+                          },
+                        ),
+                        Expanded(
+                          child: Wrap(
+                            children: [
+                              const Text('I agree to the '),
+                              GestureDetector(
+                                onTap: () => _showTerms(),
+                                child: const Text(
+                                  'Terms & Conditions',
+                                  style: TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      color: kgreyColor,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                              const Text(' and '),
+                              GestureDetector(
+                                onTap: () => _showPrivacy(),
+                                child: const Text(
+                                  'Privacy Policy',
+                                  style: TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      color: kgreyColor,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   CustomButton(
                     text: "Login",
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {}
-                      checkwithFirebase();
+                      if (!_acceptedTerms) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text(
+                                  'Please accept Terms & Conditions and Privacy Policy')),
+                        );
+                        return;
+                      }
+                      if (_formKey.currentState!.validate()) {
+                        checkwithFirebase();
+                      }
                     },
                     color: kgreyColor,
                     fontSize: 16,

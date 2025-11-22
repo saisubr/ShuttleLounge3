@@ -9,8 +9,6 @@ import 'package:shuttleloungenew/providers/auth_provider.dart';
 import 'package:shuttleloungenew/sharedPreferences/sharedprefservices.dart';
 import 'package:shuttleloungenew/widgets/customtext.dart';
 
-
-
 class CustomerSideMenu extends StatelessWidget {
   const CustomerSideMenu({super.key});
 
@@ -116,40 +114,40 @@ class CustomerSideMenu extends StatelessWidget {
                       builder: (context) => const CustomerProfilescreen()))
             },
           ),
-          ListTile(
-              leading: const Icon(
-                Icons.settings,
-                color: kblackColor,
-                size: 25,
-              ),
-              title: const CustomText(
-                  text: "Terms and Conditions",
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textcolor: kblackColor),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const TermsandConditions()));
-              }),
-          ListTile(
-              leading: const Icon(
-                Icons.privacy_tip,
-                color: kblackColor,
-                size: 25,
-              ),
-              title: const CustomText(
-                  text: "Privacy and Policy",
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  textcolor: kblackColor),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const PrivacyandPolicy()));
-              }),
+          // ListTile(
+          //     leading: const Icon(
+          //       Icons.settings,
+          //       color: kblackColor,
+          //       size: 25,
+          //     ),
+          //     title: const CustomText(
+          //         text: "Terms and Conditions",
+          //         fontSize: 16,
+          //         fontWeight: FontWeight.w500,
+          //         textcolor: kblackColor),
+          //     onTap: () {
+          //       Navigator.push(
+          //           context,
+          //           MaterialPageRoute(
+          //               builder: (context) => const TermsandConditions()));
+          //     }),
+          // ListTile(
+          //     leading: const Icon(
+          //       Icons.privacy_tip,
+          //       color: kblackColor,
+          //       size: 25,
+          //     ),
+          //     title: const CustomText(
+          //         text: "Privacy and Policy",
+          //         fontSize: 16,
+          //         fontWeight: FontWeight.w500,
+          //         textcolor: kblackColor),
+          //     onTap: () {
+          //       Navigator.push(
+          //           context,
+          //           MaterialPageRoute(
+          //               builder: (context) => const PrivacyandPolicy()));
+          //     }),
           GestureDetector(
             onTap: () {
               showDialog(
@@ -211,7 +209,10 @@ class CustomerSideMenu extends StatelessWidget {
                                     },
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor: kgreyColor),
-                                    child: const Text("Logout",style: TextStyle(color: Colors.white),)))
+                                    child: const Text(
+                                      "Logout",
+                                      style: TextStyle(color: Colors.white),
+                                    )))
                           ],
                         ),
                       )

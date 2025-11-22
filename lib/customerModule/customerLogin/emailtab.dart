@@ -293,7 +293,7 @@ class _EmailtabState extends State<Emailtab> {
                       child: Row(
                         children: [
                           const CustomText(
-                              text: "No registered yet ?",
+                              text: "Not registered yet ?",
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                               textcolor: kblackColor),
@@ -353,8 +353,16 @@ class _EmailtabState extends State<Emailtab> {
                     fontWeight: FontWeight.w700,
                   ),
                   const SizedBox(
-                    height: 10,
+                    height: 30,
                   ),
+                  Center(
+                    child: CustomText(
+                      text: "Version 1.0.4, 18th Nov @ ShuttleLounge",
+                      fontSize: 12,
+                      fontWeight: FontWeight.w300,
+                      textcolor: Colors.grey,
+                    ),
+                  )
                 ],
               ),
             ),

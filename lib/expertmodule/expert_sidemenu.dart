@@ -9,7 +9,6 @@ import 'package:shuttleloungenew/providers/auth_provider.dart';
 import 'package:shuttleloungenew/sharedPreferences/sharedprefservices.dart';
 import 'package:shuttleloungenew/widgets/customtext.dart';
 
-
 class ExpertSideMenu extends StatelessWidget {
   const ExpertSideMenu({super.key});
 
@@ -68,7 +67,6 @@ class ExpertSideMenu extends StatelessWidget {
                   "${SharedPrefServices.getemail()}",
                   style: const TextStyle(color: kwhiteColor, fontSize: 16),
                 ),
-               
               ],
             ),
           ),
@@ -89,42 +87,42 @@ class ExpertSideMenu extends StatelessWidget {
                         MaterialPageRoute(
                             builder: (context) => const ChangeExpertPassword()))
                   }),
-          ListTile(
-            leading: const Icon(
-              Icons.settings,
-              color: kblackColor,
-              size: 25,
-            ),
-            title: const CustomText(
-                text: "Terms and Conditions",
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                textcolor: kblackColor),
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const ExpertTermsConditions()));
-            },
-          ),
-          ListTile(
-            leading: const Icon(
-              Icons.privacy_tip,
-              color: kblackColor,
-              size: 25,
-            ),
-            title: const CustomText(
-                text: "Privacy and Policy",
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                textcolor: kblackColor),
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const ExpertPrivacy()));
-            },
-          ),
+          // ListTile(
+          //   leading: const Icon(
+          //     Icons.settings,
+          //     color: kblackColor,
+          //     size: 25,
+          //   ),
+          //   title: const CustomText(
+          //       text: "Terms and Conditions",
+          //       fontSize: 16,
+          //       fontWeight: FontWeight.w500,
+          //       textcolor: kblackColor),
+          //   onTap: () {
+          //     Navigator.push(
+          //         context,
+          //         MaterialPageRoute(
+          //             builder: (context) => const ExpertTermsConditions()));
+          //   },
+          // ),
+          // ListTile(
+          //   leading: const Icon(
+          //     Icons.privacy_tip,
+          //     color: kblackColor,
+          //     size: 25,
+          //   ),
+          //   title: const CustomText(
+          //       text: "Privacy and Policy",
+          //       fontSize: 16,
+          //       fontWeight: FontWeight.w500,
+          //       textcolor: kblackColor),
+          //   onTap: () {
+          //     Navigator.push(
+          //         context,
+          //         MaterialPageRoute(
+          //             builder: (context) => const ExpertPrivacy()));
+          //   },
+          // ),
           GestureDetector(
             onTap: () {
               showDialog(
@@ -186,7 +184,10 @@ class ExpertSideMenu extends StatelessWidget {
                                     },
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor: kgreyColor),
-                                    child: const Text("Logout",style: TextStyle(color: Colors.white),)))
+                                    child: const Text(
+                                      "Logout",
+                                      style: TextStyle(color: Colors.white),
+                                    )))
                           ],
                         ),
                       )
